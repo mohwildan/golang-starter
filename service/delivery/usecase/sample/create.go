@@ -15,10 +15,12 @@ func (uc *sampleUC) Create(ctx context.Context, options map[string]interface{}) 
 
 	now := time.Now().UTC()
 	sample := entity.SampleMongo{
-		ID:        primitive.NewObjectID(),
-		Text:      request.Text,
-		CreatedAt: now,
-		UpdatedAt: nil,
+		BaseEntity: entity.BaseEntity{
+			ID:        primitive.NewObjectID(),
+			CreatedAt: now,
+			UpdatedAt: nil,
+		},
+		Text: request.Text,
 	}
 
 	err := uc.SampleRepo.Create(ctx, &sample)

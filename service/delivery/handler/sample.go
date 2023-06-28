@@ -1,32 +1,35 @@
 package handler
 
 import (
+	"log"
+	"net/http"
+
 	"golang-starter/service/domain/entity"
 	"golang-starter/service/domain/usecase"
-	"log"
-
-	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 )
 
-type sampleHandler struct {
+type SampleHandler struct {
 	usecase usecase.SampleUsecase
 }
 
-func SampleHandler(g *gin.Engine, uc usecase.SampleUsecase) {
-	handler := sampleHandler{
+func NewSampleHandler(uc usecase.SampleUsecase) *SampleHandler {
+	return &SampleHandler{
 		usecase: uc,
 	}
-	v1 := g.Group("/sample/v1")
-	v1.GET("/list", handler.List)
-	v1.GET("/detail/:id", handler.Detail)
-	v1.PUT("/update/:id", handler.Update)
-	v1.POST("/create", handler.Create)
-	v1.DELETE("/delete/:id", handler.Delete)
 }
 
-func (h *sampleHandler) List(c *gin.Context) {
+func (h *SampleHandler) RegisterRoutes(router *gin.Engine) {
+	v1 := router.Group("/sample/v1")
+	v1.GET("/list", h.List)
+	v1.GET("/detail/:id", h.Detail)
+	v1.PUT("/update/:id", h.Update)
+	v1.POST("/create", h.Create)
+	v1.DELETE("/delete/:id", h.Delete)
+}
+
+func (h *SampleHandler) List(c *gin.Context) {
 	ctx := c.Request.Context()
 	options := map[string]interface{}{
 		"query": c.Request.URL.Query(),
@@ -35,49 +38,51 @@ func (h *sampleHandler) List(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (h *sampleHandler) Create(c *gin.Context) {
+func (h *SampleHandler) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 	var request entity.SampleMongo
-	err := json.NewDecoder(c.Request.Body).Decode(&request)
-	if err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
 	}
 	options := map[string]interface{}{
 		"request": request,
 	}
-	reponse := h.usecase.Create(ctx, options)
-	c.JSON(reponse.Status, reponse)
+	response := h.usecase.Create(ctx, options)
+	c.JSON(response.Status, response)
 }
 
-func (h *sampleHandler) Delete(c *gin.Context) {
+func (h *SampleHandler) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
 	options := map[string]interface{}{
 		"id": c.Param("id"),
 	}
-	reponse := h.usecase.Delete(ctx, options)
-	c.JSON(reponse.Status, reponse)
+	response := h.usecase.Delete(ctx, options)
+	c.JSON(response.Status, response)
 }
 
-func (h *sampleHandler) Detail(c *gin.Context) {
+func (h *SampleHandler) Detail(c *gin.Context) {
 	ctx := c.Request.Context()
 	options := map[string]interface{}{
 		"id": c.Param("id"),
 	}
-	reponse := h.usecase.Detail(ctx, options)
-	c.JSON(reponse.Status, reponse)
+	response := h.usecase.Detail(ctx, options)
+	c.JSON(response.Status, response)
 }
 
-func (h *sampleHandler) Update(c *gin.Context) {
+func (h *SampleHandler) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 	var request entity.SampleMongo
-	err := json.NewDecoder(c.Request.Body).Decode(&request)
-	if err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
 	}
 	options := map[string]interface{}{
 		"id":      c.Param("id"),
 		"request": request,
 	}
-	reponse := h.usecase.Update(ctx, options)
-	c.JSON(reponse.Status, reponse)
+	response := h.usecase.Update(ctx, options)
+	c.JSON(response.Status, response)
 }
