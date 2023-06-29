@@ -8,12 +8,12 @@ import (
 
 type sampleUC struct {
 	contextTimeout time.Duration
-	SampleRepo     repository.SampleRepository
+	Repository     repository.Repository
 }
 
-func Usecase(sampleRepo repository.SampleRepository, contextTimeout time.Duration) usecase.SampleUsecase {
+func Usecase(contextTimeout time.Duration, repository repository.Repository) usecase.SampleUsecase {
 	return &sampleUC{
 		contextTimeout: contextTimeout,
-		SampleRepo:     sampleRepo,
+		Repository:     repository,
 	}
 }

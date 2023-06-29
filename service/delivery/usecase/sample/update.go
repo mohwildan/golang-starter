@@ -7,17 +7,16 @@ import (
 	"net/http"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) helpers.Response {
-	id := options["id"].(string)
+	id, err := helpers.ConvertToObjID(options["id"].(string))
 	validation := make(map[string]interface{})
 	request := options["request"].(entity.SampleMongo)
-	objId, err := primitive.ObjectIDFromHex(id)
-	optionRepo := map[string]interface{}{
-		"id": objId,
+	filter := map[string]interface{}{
+		"id": id,
 	}
 
 	if err != nil {
@@ -25,7 +24,8 @@ func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) 
 			return helpers.ErrorResponse(http.StatusNotFound, "sample tidak ditemukan", err, nil)
 		}
 	}
-	row, _ := uc.SampleRepo.FetchOne(ctx, optionRepo)
+	var row entity.SampleMongo
+	err = uc.Repository.FindOne(ctx, row.GetCollectionName(), filter, &row)
 
 	now := time.Now().UTC()
 	row.UpdatedAt = &now
@@ -33,7 +33,11 @@ func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) 
 		row.Text = request.Text
 	}
 
-	err = uc.SampleRepo.Update(ctx, &row)
+	update := bson.M{
+		"$set": &row,
+	}
+
+	err = uc.Repository.UpdateOne(ctx, row.GetCollectionName(), filter, update)
 	if err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, validation)
 	}

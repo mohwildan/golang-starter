@@ -15,16 +15,13 @@ func (uc *sampleUC) Create(ctx context.Context, options map[string]interface{}) 
 
 	now := time.Now().UTC()
 	sample := entity.SampleMongo{
-		BaseEntity: entity.BaseEntity{
-			ID:        primitive.NewObjectID(),
-			CreatedAt: now,
-			UpdatedAt: nil,
-		},
-		Text: request.Text,
+		ID:        primitive.NewObjectID(),
+		Text:      request.Text,
+		CreatedAt: now,
+		UpdatedAt: nil,
 	}
 
-	err := uc.SampleRepo.Create(ctx, &sample)
-
+	err := uc.Repository.InsertOne(ctx, sample.GetCollectionName(), &sample)
 	if err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, nil)
 	}

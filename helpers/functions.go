@@ -1,27 +1,28 @@
-package entity
+package helpers
 
 import (
+	"net/url"
 	"strings"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	moptions "go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 )
 
-type BaseEntity struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt *time.Time         `json:"updated_at" bson:"updated_at"`
+func SetQueryField(query url.Values, optionRepo map[string]interface{}, fieldName string) {
+	if value := query.Get(fieldName); value != "" {
+		optionRepo[fieldName] = value
+	}
 }
 
 const (
 	defaultLimit   = 10
+	defaultPage    = 1
 	defaultSortBy  = "created_at"
 	defaultSortDir = "asc"
 )
 
-func (e *BaseEntity) GenerateQuery(options map[string]interface{}) (bson.M, *moptions.FindOptions) {
+func GenerateQuery(options map[string]interface{}) (bson.M, *moptions.FindOptions) {
 	query := bson.M{}
 
 	if id, ok := options["id"].(primitive.ObjectID); ok {
@@ -31,7 +32,7 @@ func (e *BaseEntity) GenerateQuery(options map[string]interface{}) (bson.M, *mop
 		query["_id"] = objID
 	}
 
-	page := getOptionAsInt64(options, "page", 0)
+	page := getOptionAsInt64(options, "page", defaultPage)
 	limit := getOptionAsInt64(options, "limit", defaultLimit)
 	sortBy := getOptionAsString(options, "sort", defaultSortBy)
 	sortDir := getOptionAsString(options, "dir", defaultSortDir)
@@ -51,11 +52,6 @@ func (e *BaseEntity) GenerateQuery(options map[string]interface{}) (bson.M, *mop
 	return query, mongoOptions
 }
 
-func (e *BaseEntity) AllowedSort() []string {
-	// Menyesuaikan dengan bidang yang dapat diurutkan pada entitas yang bersangkutan
-	return []string{"_id", "created_at", "updated_at"}
-}
-
 func getOptionAsInt64(options map[string]interface{}, key string, defaultValue int64) int64 {
 	if value, ok := options[key].(int64); ok {
 		return value
@@ -68,4 +64,11 @@ func getOptionAsString(options map[string]interface{}, key string, defaultValue 
 		return value
 	}
 	return defaultValue
+}
+func ConvertToObjID(id string) (primitive.ObjectID, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
+	return objID, nil
 }

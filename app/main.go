@@ -38,10 +38,9 @@ func main() {
 	mongoDB := database.InitMongo(timeOutDuration)
 
 	// Inisialisasi repository
-	sampleRepo := repository.SampleRepo(mongoDB)
-
+	repository := repository.NewRepository(mongoDB)
 	// Inisialisasi usecase
-	sampleUc := sample.Usecase(sampleRepo, timeOutDuration)
+	sampleUc := sample.Usecase(timeOutDuration, repository)
 
 	// Inisialisasi handler
 	sampleHandler := handler.NewSampleHandler(sampleUc)
