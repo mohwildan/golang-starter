@@ -16,7 +16,16 @@ func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) he
 	// Paginate Query
 	entity.SetPaginationQuery(query, options, optionsRepo)
 
-	queryArray := []string{"id", "text"}
+	queryArray := []entity.PaginateKey{
+		{
+			Key:       "id",
+			TargetKey: "id",
+		},
+		{
+			Key:       "find_text",
+			TargetKey: "text",
+		},
+	}
 
 	for i := 0; i < len(queryArray); i++ {
 		helpers.SetQueryField(query, optionsRepo, queryArray[i])

@@ -18,6 +18,10 @@ type Paginate struct {
 	TotalData int64       `json:"total_data"`
 	TotalPage float64     `json:"total_page"`
 }
+type PaginateKey struct {
+	Key       string
+	TargetKey string
+}
 
 func SetPaginationQuery(query url.Values, options map[string]interface{}, optionsRepo map[string]interface{}) {
 	//paginate

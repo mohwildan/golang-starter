@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"golang-starter/service/domain/entity"
 	"net/url"
 	"strings"
 
@@ -9,9 +10,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func SetQueryField(query url.Values, optionRepo map[string]interface{}, fieldName string) {
-	if value := query.Get(fieldName); value != "" {
-		optionRepo[fieldName] = value
+func SetQueryField(query url.Values, optionRepo map[string]interface{}, fieldKey entity.PaginateKey) {
+	if value := query.Get(fieldKey.Key); value != "" {
+		optionRepo[fieldKey.TargetKey] = value
 	}
 }
 
@@ -19,8 +20,8 @@ func GenerateQuery(options map[string]interface{}) (bson.M, *moptions.FindOption
 	const (
 		defaultLimit   = 10
 		defaultPage    = 1
-		defaultSortBy  = "created_at"
-		defaultSortDir = "asc"
+		defaultSort    = "asc"
+		defaultSortDir = "created_at"
 	)
 	query := bson.M{}
 
@@ -37,14 +38,14 @@ func GenerateQuery(options map[string]interface{}) (bson.M, *moptions.FindOption
 		case "limit", "page", "sort", "dir":
 			page := getOptionAsInt64(options, "page", defaultPage)
 			limit := getOptionAsInt64(options, "limit", defaultLimit)
-			sortBy := getOptionAsString(options, "sort", defaultSortBy)
-			sortDir := getOptionAsString(options, "dir", defaultSortDir)
+			sort := getOptionAsString(options, "sort", defaultSort)
+			sortBy := getOptionAsString(options, "dir", defaultSortDir)
 
 			mongoOptions.SetSkip(page * limit)
 			mongoOptions.SetLimit(limit)
 
 			sortQ := bson.M{}
-			if strings.ToLower(sortDir) == "desc" {
+			if strings.ToLower(sort) == "desc" {
 				sortQ[sortBy] = -1
 			} else {
 				sortQ[sortBy] = 1
