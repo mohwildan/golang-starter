@@ -15,39 +15,47 @@ func SetQueryField(query url.Values, optionRepo map[string]interface{}, fieldNam
 	}
 }
 
-const (
-	defaultLimit   = 10
-	defaultPage    = 1
-	defaultSortBy  = "created_at"
-	defaultSortDir = "asc"
-)
-
 func GenerateQuery(options map[string]interface{}) (bson.M, *moptions.FindOptions) {
+	const (
+		defaultLimit   = 10
+		defaultPage    = 1
+		defaultSortBy  = "created_at"
+		defaultSortDir = "asc"
+	)
 	query := bson.M{}
 
-	if id, ok := options["id"].(primitive.ObjectID); ok {
-		query["_id"] = id
-	} else if id, ok := options["id"].(string); ok {
-		objID, _ := primitive.ObjectIDFromHex(id)
-		query["_id"] = objID
-	}
-
-	page := getOptionAsInt64(options, "page", defaultPage)
-	limit := getOptionAsInt64(options, "limit", defaultLimit)
-	sortBy := getOptionAsString(options, "sort", defaultSortBy)
-	sortDir := getOptionAsString(options, "dir", defaultSortDir)
-
 	mongoOptions := moptions.Find()
-	mongoOptions.SetSkip(page * limit)
-	mongoOptions.SetLimit(limit)
+	for key, value := range options {
+		switch key {
+		case "id":
+			if id, ok := value.(primitive.ObjectID); ok {
+				query["_id"] = id
+			} else if id, ok := value.(string); ok {
+				objID, _ := ConvertToObjID(id)
+				query["_id"] = objID
+			}
+		case "limit", "page", "sort", "dir":
+			page := getOptionAsInt64(options, "page", defaultPage)
+			limit := getOptionAsInt64(options, "limit", defaultLimit)
+			sortBy := getOptionAsString(options, "sort", defaultSortBy)
+			sortDir := getOptionAsString(options, "dir", defaultSortDir)
 
-	sortQ := bson.M{}
-	if strings.ToLower(sortDir) == "desc" {
-		sortQ[sortBy] = -1
-	} else {
-		sortQ[sortBy] = 1
+			mongoOptions.SetSkip(page * limit)
+			mongoOptions.SetLimit(limit)
+
+			sortQ := bson.M{}
+			if strings.ToLower(sortDir) == "desc" {
+				sortQ[sortBy] = -1
+			} else {
+				sortQ[sortBy] = 1
+			}
+			mongoOptions.SetSort(sortQ)
+		default:
+			if _, exists := query[key]; !exists {
+				query[key] = value
+			}
+		}
 	}
-	mongoOptions.SetSort(sortQ)
 
 	return query, mongoOptions
 }

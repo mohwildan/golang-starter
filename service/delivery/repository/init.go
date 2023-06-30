@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"golang-starter/service/domain/repository"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	moptions "go.mongodb.org/mongo-driver/mongo/options"
@@ -12,13 +13,13 @@ type Repository struct {
 	db *mongo.Database
 }
 
-func NewRepository(db *mongo.Database) *Repository {
+func NewRepository(db *mongo.Database) repository.Repository {
 	return &Repository{
 		db: db,
 	}
 }
 
-func (r *Repository) Find(ctx context.Context, collectionName string, filter bson.M, findOptions *moptions.FindOptions, result interface{}) error {
+func (r *Repository) Find(ctx context.Context, collectionName string, filter bson.M, result interface{}, findOptions *moptions.FindOptions) error {
 	collection := r.db.Collection(collectionName)
 	cursor, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 
 type Repository interface {
 	InsertOne(ctx context.Context, collectionName string, document interface{}) error
-	Find(ctx context.Context, collectionName string, filter bson.M, findOptions *moptions.FindOptions, result interface{}) error
+	Find(ctx context.Context, collectionName string, filter bson.M, result interface{}, findOptions *moptions.FindOptions) error
 	FindOne(ctx context.Context, collectionName string, filter bson.M, result interface{}) error
 	Count(ctx context.Context, collectionName string, filter bson.M) (int64, error)
 	UpdateOne(ctx context.Context, collectionName string, filter bson.M, update bson.M) error

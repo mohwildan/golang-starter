@@ -16,7 +16,7 @@ func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) he
 	// Paginate Query
 	entity.SetPaginationQuery(query, options, optionsRepo)
 
-	queryArray := []string{"id"}
+	queryArray := []string{"id", "text"}
 
 	for i := 0; i < len(queryArray); i++ {
 		helpers.SetQueryField(query, optionsRepo, queryArray[i])
@@ -24,7 +24,7 @@ func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) he
 
 	var model entity.SampleMongo
 	queryOptions, findOptions := helpers.GenerateQuery(optionsRepo)
-	err := uc.Repository.Find(ctx, model.GetCollectionName(), queryOptions, findOptions, &data)
+	err := uc.Repository.Find(ctx, model.GetCollectionName(), queryOptions, &data, findOptions)
 	if err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, nil)
 	}

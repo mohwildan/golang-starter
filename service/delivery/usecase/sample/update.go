@@ -16,7 +16,7 @@ func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) 
 	validation := make(map[string]interface{})
 	request := options["request"].(entity.SampleMongo)
 	filter := map[string]interface{}{
-		"id": id,
+		"_id": id,
 	}
 
 	if err != nil {
@@ -29,12 +29,10 @@ func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) 
 
 	now := time.Now().UTC()
 	row.UpdatedAt = &now
-	if row.Text != "" {
-		row.Text = request.Text
-	}
+	row.Text = request.Text
 
 	update := bson.M{
-		"$set": &row,
+		"$set": row,
 	}
 
 	err = uc.Repository.UpdateOne(ctx, row.GetCollectionName(), filter, update)
