@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"golang-starter/generators"
 	"golang-starter/service/database"
 	"golang-starter/service/delivery/handler"
 	"golang-starter/service/delivery/repository"
@@ -16,6 +17,16 @@ import (
 )
 
 func init() {
+
+	args := os.Args
+	if len(args) > 0 {
+		for _, arg := range args[1:] {
+			if arg == "ns" {
+				generators.GenerateService()
+			}
+		}
+		return
+	}
 	err := godotenv.Load("environments/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")

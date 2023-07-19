@@ -1,4 +1,4 @@
-package sample
+package {{.ServiceName | camelcase | lower}}
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) helpers.Response {
+func (uc *{{.ServiceName | camelcase | lower}}UC) List(ctx context.Context, options map[string]interface{}) helpers.Response {
 	query := options["query"].(url.Values)
 	optionsRepo := make(map[string]interface{})
 	var data []entity.SampleMongo
@@ -47,3 +47,4 @@ func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) he
 
 	return helpers.SuccessResponse("success", responsePagination)
 }
+

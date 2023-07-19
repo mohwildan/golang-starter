@@ -1,0 +1,20 @@
+package {{.ServiceName | camelcase | lower}}
+
+import (
+	"golang-starter/service/domain/repository"
+	"golang-starter/service/domain/usecase"
+	"time"
+)
+
+type {{.ServiceName | camelcase | lower}}UC struct {
+	contextTimeout time.Duration
+	Repository     repository.Repository
+}
+
+func Usecase(contextTimeout time.Duration, repository repository.Repository) usecase.SampleUsecase {
+	return &{{.ServiceName | camelcase | lower}}UC{
+		contextTimeout: contextTimeout,
+		Repository:     repository,
+	}
+}
+

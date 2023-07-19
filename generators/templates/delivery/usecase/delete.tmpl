@@ -1,4 +1,4 @@
-package sample
+package {{.ServiceName | camelcase | lower}}
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (uc *sampleUC) Delete(ctx context.Context, options map[string]interface{}) helpers.Response {
+func (uc *{{.ServiceName | camelcase | lower}}UC) Delete(ctx context.Context, options map[string]interface{}) helpers.Response {
 	id := options["id"].(string)
 
 	var sample entity.SampleMongo
@@ -31,3 +31,4 @@ func (uc *sampleUC) Delete(ctx context.Context, options map[string]interface{}) 
 	}
 	return helpers.SuccessResponse("success", map[string]interface{}{})
 }
+

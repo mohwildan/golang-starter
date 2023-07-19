@@ -1,4 +1,4 @@
-package sample
+package {{.ServiceName | camelcase | lower}}
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (uc *sampleUC) Detail(ctx context.Context, options map[string]interface{}) helpers.Response {
+func (uc *{{.ServiceName | camelcase | lower}}UC) Detail(ctx context.Context, options map[string]interface{}) helpers.Response {
 	var sample entity.SampleMongo
 	id := options["id"].(string)
 	filter, _ := helpers.GenerateQuery(bson.M{
@@ -26,3 +26,4 @@ func (uc *sampleUC) Detail(ctx context.Context, options map[string]interface{}) 
 
 	return helpers.SuccessResponse("success", sample)
 }
+

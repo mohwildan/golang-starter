@@ -1,4 +1,4 @@
-package sample
+package {{.ServiceName | camelcase | lower}}
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) helpers.Response {
+func (uc *{{.ServiceName | camelcase | lower}}UC) Update(ctx context.Context, options map[string]interface{}) helpers.Response {
 	id := options["id"].(string)
 	validation := make(map[string]interface{})
 	request := options["request"].(entity.SampleMongo)
@@ -41,3 +41,4 @@ func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) 
 	}
 	return helpers.SuccessResponse("success", map[string]interface{}{})
 }
+

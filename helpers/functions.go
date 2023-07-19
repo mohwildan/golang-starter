@@ -11,8 +11,8 @@ import (
 )
 
 func SetQueryField(query url.Values, optionRepo map[string]interface{}, fieldKey entity.PaginateKey) {
-	if value := query.Get(fieldKey.Key); value != "" {
-		optionRepo[fieldKey.TargetKey] = value
+	if value := query.Get(fieldKey.QueryKey); value != "" {
+		optionRepo[fieldKey.TargetQueryKey] = value
 	}
 }
 
