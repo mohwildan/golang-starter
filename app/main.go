@@ -17,6 +17,13 @@ import (
 )
 
 func init() {
+	err := godotenv.Load("environments/.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
+
+func main() {
 
 	args := os.Args
 	if len(args) > 0 {
@@ -25,15 +32,7 @@ func init() {
 				generators.GenerateService()
 			}
 		}
-		return
 	}
-	err := godotenv.Load("environments/.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
-
-func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.Use(gin.Recovery())
