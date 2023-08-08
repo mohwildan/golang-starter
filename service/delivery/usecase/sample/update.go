@@ -15,12 +15,13 @@ func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) 
 	id := options["id"].(string)
 	validation := make(map[string]interface{})
 	request := options["request"].(entity.SampleMongo)
-	filter, _ := helpers.GenerateQuery(bson.M{
-		"id": id,
-	})
-
+	filters := []helpers.Filter{
+		{
+			"id", "=", id,
+		},
+	}
 	var row entity.SampleMongo
-	err := uc.Repository.FindOne(ctx, row.GetCollectionName(), filter, &row)
+	err := uc.Repository.FindOne(ctx, row.GetCollectionName(), filters, &row)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return helpers.ErrorResponse(http.StatusNotFound, "sample tidak ditemukan", err, nil)
@@ -35,7 +36,7 @@ func (uc *sampleUC) Update(ctx context.Context, options map[string]interface{}) 
 		"$set": row,
 	}
 
-	err = uc.Repository.UpdateOne(ctx, row.GetCollectionName(), filter, update)
+	err = uc.Repository.UpdateOne(ctx, row.GetCollectionName(), filters, update)
 	if err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, validation)
 	}

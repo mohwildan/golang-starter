@@ -7,16 +7,16 @@ import (
 	"net/http"
 
 	"go.mongodb.org/mongo-driver/mongo"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func (uc *sampleUC) Detail(ctx context.Context, options map[string]interface{}) helpers.Response {
 	var sample entity.SampleMongo
 	id := options["id"].(string)
-	filter, _ := helpers.GenerateQuery(bson.M{
-		"id": id,
-	})
-	err := uc.Repository.FindOne(ctx, sample.GetCollectionName(), filter, &sample)
+	objId, _ := helpers.ConvertToObjID(id)
+	filters := []helpers.Filter{
+		{"_id", helpers.Equal, objId},
+	}
+	err := uc.Repository.FindOne(ctx, helpers.SampleCollectionName, filters, &sample)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return helpers.ErrorResponse(http.StatusNotFound, "data sample tidak di temukan", err, nil)

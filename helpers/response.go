@@ -2,7 +2,11 @@ package helpers
 
 import (
 	"encoding/json"
+	"golang-starter/service/domain/entity"
+	"math"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
 type Response struct {
@@ -34,4 +38,33 @@ func SuccessResponse(message string, data interface{}) Response {
 		Status:     http.StatusOK,
 		Validation: make(map[string]interface{}),
 	}
+}
+
+func GeneratePaginateResponse(query url.Values, optionsRepo map[string]interface{}, data interface{}, total int64) entity.Paginate {
+	// Paginate
+	pageQuery := query.Get("page")
+	pageInt, err := strconv.Atoi(pageQuery)
+	if err != nil || pageInt <= 0 {
+		pageInt = defaultPage
+	}
+
+	limitQuery := query.Get("limit")
+	limitInt, err := strconv.Atoi(limitQuery)
+	if err != nil || limitInt <= 0 {
+		limitInt = defaultLimit
+	}
+
+	paginate := entity.Paginate{
+		List:      data,
+		Limit:     int64(limitInt),
+		Page:      int64(pageInt),
+		TotalData: total,
+		TotalPage: math.Ceil(float64(total) / float64(limitInt)),
+	}
+
+	if total < 1 {
+		paginate.List = []string{}
+	}
+
+	return paginate
 }

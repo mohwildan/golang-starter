@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"golang-starter/helpers"
 	"golang-starter/service/domain/repository"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +20,7 @@ func NewRepository(db *mongo.Database) repository.Repository {
 	}
 }
 
-func (r *Repository) Find(ctx context.Context, collectionName string, filter bson.M, result interface{}, findOptions *moptions.FindOptions) error {
+func (r *Repository) Find(ctx context.Context, collectionName string, filter bson.M, result any, findOptions *moptions.FindOptions) error {
 	collection := r.db.Collection(collectionName)
 	cursor, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
@@ -33,38 +34,42 @@ func (r *Repository) Find(ctx context.Context, collectionName string, filter bso
 	return nil
 }
 
-func (r *Repository) FindOne(ctx context.Context, collectionName string, filter bson.M, result interface{}) error {
+func (r *Repository) FindOne(ctx context.Context, collectionName string, filters []helpers.Filter, result any) error {
 	collection := r.db.Collection(collectionName)
-	err := collection.FindOne(ctx, filter).Decode(result)
+	processQuery := helpers.GenerateQuerys(filters, bson.M{})
+	err := collection.FindOne(ctx, processQuery.Query).Decode(result)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) InsertOne(ctx context.Context, collectionName string, document interface{}) error {
+func (r *Repository) InsertOne(ctx context.Context, collectionName string, document any) error {
 	if _, err := r.db.Collection(collectionName).InsertOne(ctx, document); err != nil {
 		return err
 	}
 	return nil
 }
-func (r *Repository) UpdateOne(ctx context.Context, collectionName string, filter bson.M, update bson.M) error {
-	if _, err := r.db.Collection(collectionName).UpdateOne(ctx, filter, update); err != nil {
+func (r *Repository) UpdateOne(ctx context.Context, collectionName string, filters []helpers.Filter, update bson.M) error {
+	processQuery := helpers.GenerateQuerys(filters, bson.M{})
+	if _, err := r.db.Collection(collectionName).UpdateOne(ctx, processQuery.Query, update); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) DeleteOne(ctx context.Context, collectionName string, filter bson.M) error {
-	if _, err := r.db.Collection(collectionName).DeleteOne(ctx, filter); err != nil {
+func (r *Repository) DeleteOne(ctx context.Context, collectionName string, filters []helpers.Filter) error {
+	processQuery := helpers.GenerateQuerys(filters, bson.M{})
+	if _, err := r.db.Collection(collectionName).DeleteOne(ctx, processQuery.Query); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) Count(ctx context.Context, collectionName string, filter bson.M) (int64, error) {
+func (r *Repository) Count(ctx context.Context, collectionName string, filters []helpers.Filter) (int64, error) {
+	processQuery := helpers.GenerateQuerys(filters, bson.M{})
 	collection := r.db.Collection(collectionName)
-	count, err := collection.CountDocuments(ctx, filter)
+	count, err := collection.CountDocuments(ctx, processQuery.Query)
 	if err != nil {
 		return 0, err
 	}

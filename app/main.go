@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"golang-starter/generators"
 	"golang-starter/service/database"
 	"golang-starter/service/delivery/handler"
 	"golang-starter/service/delivery/repository"
@@ -25,14 +24,6 @@ func init() {
 
 func main() {
 
-	args := os.Args
-	if len(args) > 0 {
-		for _, arg := range args[1:] {
-			if arg == "ns" {
-				generators.GenerateService()
-			}
-		}
-	}
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.Use(gin.Recovery())
@@ -52,7 +43,7 @@ func main() {
 	// Inisialisasi usecase
 	sampleUc := sample.Usecase(timeOutDuration, repository)
 
-	// Inisialisasi handler
+	// Initialising handler
 	sampleHandler := handler.NewSampleHandler(sampleUc)
 
 	// Register route

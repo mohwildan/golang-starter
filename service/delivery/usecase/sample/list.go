@@ -14,36 +14,29 @@ func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) he
 	var data []entity.SampleMongo
 
 	// Paginate Query
-	entity.SetPaginationQuery(query, options, optionsRepo)
+	helpers.SetPaginationQuery(query, options, optionsRepo)
 
-	queryArray := []entity.PaginateKey{
-		{
-			QueryKey:       "id",
-			TargetQueryKey: "id",
-		},
-		{
-			QueryKey:       "find_text",
-			TargetQueryKey: "text",
-		},
+	var filters []helpers.Filter
+	if v := query.Get("text"); v != "" {
+		filters = append(filters, helpers.Filter{Field: "text", Operator: helpers.Contains, Value: v})
+	}
+	if v := query.Get("id"); v != "" {
+		objId, _ := helpers.ConvertToObjID(v)
+		filters = append(filters, helpers.Filter{Field: "_id", Operator: helpers.Equal, Value: objId})
 	}
 
-	for i := 0; i < len(queryArray); i++ {
-		helpers.SetQueryField(query, optionsRepo, queryArray[i])
-	}
-
-	var model entity.SampleMongo
-	queryOptions, findOptions := helpers.GenerateQuery(optionsRepo)
-	err := uc.Repository.Find(ctx, model.GetCollectionName(), queryOptions, &data, findOptions)
+	processQuery := helpers.GenerateQuerys(filters, optionsRepo)
+	err := uc.Repository.Find(ctx, helpers.SampleCollectionName, processQuery.Query, &data, processQuery.FindOptions)
 	if err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, nil)
 	}
 
-	total, err := uc.Repository.Count(ctx, model.GetCollectionName(), queryOptions)
+	total, err := uc.Repository.Count(ctx, helpers.SampleCollectionName, filters)
 	if err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, nil)
 	}
 
-	responsePagination := entity.GeneratePaginateResponse(query, optionsRepo, data, total)
+	responsePagination := helpers.GeneratePaginateResponse(query, optionsRepo, data, total)
 
 	return helpers.SuccessResponse("success", responsePagination)
 }

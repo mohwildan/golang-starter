@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"golang-starter/service/domain/handler"
 	"log"
 	"net/http"
 
@@ -14,7 +15,7 @@ type SampleHandler struct {
 	usecase usecase.SampleUsecase
 }
 
-func NewSampleHandler(uc usecase.SampleUsecase) *SampleHandler {
+func NewSampleHandler(uc usecase.SampleUsecase) handler.SampleHandler {
 	return &SampleHandler{
 		usecase: uc,
 	}
@@ -31,7 +32,7 @@ func (h *SampleHandler) RegisterRoutes(router *gin.Engine) {
 
 func (h *SampleHandler) List(c *gin.Context) {
 	ctx := c.Request.Context()
-	options := map[string]interface{}{
+	options := map[string]any{
 		"query": c.Request.URL.Query(),
 	}
 	response := h.usecase.List(ctx, options)
@@ -46,7 +47,7 @@ func (h *SampleHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
-	options := map[string]interface{}{
+	options := map[string]any{
 		"request": request,
 	}
 	response := h.usecase.Create(ctx, options)
@@ -55,7 +56,7 @@ func (h *SampleHandler) Create(c *gin.Context) {
 
 func (h *SampleHandler) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	options := map[string]interface{}{
+	options := map[string]any{
 		"id": c.Param("id"),
 	}
 	response := h.usecase.Delete(ctx, options)
@@ -64,7 +65,7 @@ func (h *SampleHandler) Delete(c *gin.Context) {
 
 func (h *SampleHandler) Detail(c *gin.Context) {
 	ctx := c.Request.Context()
-	options := map[string]interface{}{
+	options := map[string]any{
 		"id": c.Param("id"),
 	}
 	response := h.usecase.Detail(ctx, options)
@@ -79,7 +80,7 @@ func (h *SampleHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
-	options := map[string]interface{}{
+	options := map[string]any{
 		"id":      c.Param("id"),
 		"request": request,
 	}

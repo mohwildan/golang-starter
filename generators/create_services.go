@@ -13,21 +13,6 @@ import (
 //go:embed templates/delivery/usecase/init.tmpl
 var initTemplate string
 
-//go:embed templates/delivery/usecase/create.tmpl
-var createTemplate string
-
-//go:embed templates/delivery/usecase/list.tmpl
-var listTemplate string
-
-//go:embed templates/delivery/usecase/detail.tmpl
-var detailTemplate string
-
-//go:embed templates/delivery/usecase/delete.tmpl
-var deleteTemplate string
-
-//go:embed templates/delivery/usecase/update.tmpl
-var updateTemplate string
-
 //go:embed templates/domain/usecase/interface.tmpl
 var domainUsecaseTemplate string
 
@@ -61,10 +46,5 @@ func GenerateService() {
 	}
 
 	helpers.ProcessTemplate(initTemplate, "init.tmpl", filepath.Join("service/delivery/usecase", strcase.ToSnake(serviceName)+"/init.go"), data)
-	helpers.ProcessTemplate(createTemplate, "create.tmpl", filepath.Join("service/delivery/usecase/", strcase.ToSnake(serviceName)+"/create.go"), data)
-	helpers.ProcessTemplate(listTemplate, "list.tmpl", filepath.Join("service/delivery/usecase/", strcase.ToSnake(serviceName)+"/list.go"), data)
-	helpers.ProcessTemplate(detailTemplate, "detail.tmpl", filepath.Join("service/delivery/usecase/", strcase.ToSnake(serviceName)+"/detail.go"), data)
-	helpers.ProcessTemplate(deleteTemplate, "delete.tmpl", filepath.Join("service/delivery/usecase/", strcase.ToSnake(serviceName)+"/delete.go"), data)
-	helpers.ProcessTemplate(updateTemplate, "update.tmpl", filepath.Join("service/delivery/usecase/", strcase.ToSnake(serviceName)+"/update.go"), data)
 	helpers.ProcessTemplate(domainUsecaseTemplate, "interface.tmpl", filepath.Join("serivce/domain/usecase", strcase.ToSnake(serviceName)+".go"), data)
 }
