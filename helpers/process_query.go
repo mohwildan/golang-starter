@@ -9,16 +9,16 @@ import (
 	"strings"
 )
 
-type EnumOprator string
+type EnumOperator string
 
 const (
-	Equal              EnumOprator = "="
-	GreaterThan        EnumOprator = ">"
-	LessThan           EnumOprator = "<"
-	GreaterThanOrEqual EnumOprator = ">="
-	LessThanOrEqual    EnumOprator = "<="
-	In                 EnumOprator = "in"
-	Contains           EnumOprator = "contains"
+	Equal              EnumOperator = "="
+	GreaterThan        EnumOperator = ">"
+	LessThan           EnumOperator = "<"
+	GreaterThanOrEqual EnumOperator = ">="
+	LessThanOrEqual    EnumOperator = "<="
+	In                 EnumOperator = "in"
+	Contains           EnumOperator = "contains"
 )
 
 const (
@@ -30,7 +30,7 @@ const (
 
 type Filter struct {
 	Field    string
-	Operator EnumOprator
+	Operator EnumOperator
 	Value    any
 }
 
@@ -39,7 +39,7 @@ type QueryResult struct {
 	FindOptions *moptions.FindOptions
 }
 
-func GenerateQuerys(filters []Filter, options bson.M) QueryResult {
+func GenerateQuery(filters []Filter, options bson.M) QueryResult {
 	query := bson.M{}
 	mongoOptions := moptions.Find()
 
@@ -61,30 +61,26 @@ func GenerateQuerys(filters []Filter, options bson.M) QueryResult {
 			query[filter.Field] = bson.M{"$regex": fmt.Sprintf(".*%s.*", filter.Value)}
 		default:
 		}
-		switch filter.Field {
-		case "limit", "page", "sort", "dir":
-
-			page := GetOptions[int64](options, "page", defaultPage)
-			limit := GetOptions[int64](options, "limit", defaultLimit)
-			sort := GetOptions[string](options, "sort", defaultSort)
-			sortBy := GetOptions[string](options, "dir", defaultSortDir)
-
-			mongoOptions.SetSkip(page * limit)
-			mongoOptions.SetLimit(limit)
-
-			sortQ := bson.M{}
-			if strings.ToLower(sort) == "desc" {
-				sortQ[sortBy] = -1
-			} else {
-				sortQ[sortBy] = 1
-			}
-			mongoOptions.SetSort(sortQ)
-		}
 	}
+	page := GetOptions[int64](options, "page", defaultPage)
+	limit := GetOptions[int64](options, "limit", defaultLimit)
+	sort := GetOptions[string](options, "sort", defaultSort)
+	sortBy := GetOptions[string](options, "dir", defaultSortDir)
+
+	mongoOptions.SetSkip(page * limit)
+	mongoOptions.SetLimit(limit)
+
+	sortQ := bson.M{}
+	if strings.ToLower(sort) == "desc" {
+		sortQ[sortBy] = -1
+	} else {
+		sortQ[sortBy] = 1
+	}
+	mongoOptions.SetSort(sortQ)
 	return QueryResult{Query: query, FindOptions: mongoOptions}
 }
 
-func SetPaginationQuery(query url.Values, options map[string]interface{}, optionsRepo map[string]interface{}) {
+func SetPaginationQuery(query url.Values, optionsRepo map[string]interface{}) {
 	//paginate
 	pageQuery := query.Get("page")
 	pageInt, err := strconv.Atoi(pageQuery)

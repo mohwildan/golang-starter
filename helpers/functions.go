@@ -18,3 +18,6 @@ func ConvertToObjID(id string) (primitive.ObjectID, error) {
 	}
 	return objID, nil
 }
+func ConventObjectIDToString(objID primitive.ObjectID) string {
+	return objID.Hex()
+}

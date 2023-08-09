@@ -14,7 +14,7 @@ func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) he
 	var data []entity.SampleMongo
 
 	// Paginate Query
-	helpers.SetPaginationQuery(query, options, optionsRepo)
+	helpers.SetPaginationQuery(query, optionsRepo)
 
 	var filters []helpers.Filter
 	if v := query.Get("text"); v != "" {
@@ -25,7 +25,7 @@ func (uc *sampleUC) List(ctx context.Context, options map[string]interface{}) he
 		filters = append(filters, helpers.Filter{Field: "_id", Operator: helpers.Equal, Value: objId})
 	}
 
-	processQuery := helpers.GenerateQuerys(filters, optionsRepo)
+	processQuery := helpers.GenerateQuery(filters, optionsRepo)
 	err := uc.Repository.Find(ctx, helpers.SampleCollectionName, processQuery.Query, &data, processQuery.FindOptions)
 	if err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, nil)
