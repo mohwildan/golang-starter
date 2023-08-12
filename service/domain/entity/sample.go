@@ -8,7 +8,7 @@ import (
 
 type SampleMongo struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id"`
-	Text      string             `json:"text" bson:"text"`
+	Text      string             `json:"text" bson:"text" validate:"required"`
 	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
 	UpdatedAt *time.Time         `json:"updated_at" bson:"updated_at"`
 }

@@ -12,7 +12,6 @@ import (
 
 func (uc *sampleUC) Create(ctx context.Context, options map[string]interface{}) helpers.Response {
 	request := options["request"].(entity.SampleMongo)
-
 	now := time.Now().UTC()
 	sample := entity.SampleMongo{
 		ID:        primitive.NewObjectID(),
@@ -21,8 +20,12 @@ func (uc *sampleUC) Create(ctx context.Context, options map[string]interface{}) 
 		UpdatedAt: nil,
 	}
 
-	err := uc.Repository.InsertOne(ctx, sample.GetCollectionName(), &sample)
-	if err != nil {
+	validation := helpers.ValidateStruct(sample)
+
+	if len(validation) > 0 {
+		return helpers.ErrorResponse(http.StatusBadRequest, "validation_errors", nil, validation)
+	}
+	if err := uc.Repository.InsertOne(ctx, sample.GetCollectionName(), &sample); err != nil {
 		return helpers.ErrorResponse(http.StatusBadRequest, err.Error(), err, nil)
 	}
 
